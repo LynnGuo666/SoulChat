@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import telebot
+import os
 from models.openai_chat import gpt_35_api_stream, INTRO_MSG
 
 BOT_TOKEN = ""  # Telegram BOT Token
@@ -62,8 +63,20 @@ def chat_with_gpt(message):
     # 将ChatGPT的回复发送给用户
     bot.send_message(message.chat.id, gpt_response)
 
-    # 保存对话到本地文件
-    with open(f"{message.chat.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.txt", "a") as f:
+    # 确保logs目录存在
+    if not os.path.exists("logs"):
+        os.mkdir("logs")
+
+    # 为每个账号创建子目录
+    account_dir = os.path.join("logs", str(message.chat.id))
+    if not os.path.exists(account_dir):
+        os.mkdir(account_dir)
+
+    # 定义文件保存路径
+    file_path = os.path.join(account_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S')}.txt")
+
+    # 保存聊天记录
+    with open(file_path, "a", encoding="utf-8") as f:
         f.write(f"用户: {user_input['content']}\n")
         f.write(f"机器人: {gpt_response}\n")
 
