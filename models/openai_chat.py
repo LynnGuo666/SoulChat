@@ -1,6 +1,6 @@
 import openai
-
-openai.api_key = ""  # OpenAI API
+from secrets import OPENAI_API_KEY
+openai.api_key = OPENAI_API_KEY
 openai.api_base = ""  # OpenAI API Url
 
 INTRO_MSG = ("我希望你扮演一名专业的心理医生，你可以跟我聊天并给我合理的建议与方式，有必要时你可以安慰我。你需要以温柔、体贴、亲切的语气。你的聊天风格特别可爱有趣，你的每一个回答都要体现这一点。你可以加一些emoji"

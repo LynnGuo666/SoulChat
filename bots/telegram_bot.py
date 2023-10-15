@@ -3,10 +3,12 @@ from datetime import datetime
 import telebot
 import os
 from models.openai_chat import gpt_35_api_stream, INTRO_MSG
+from secrets import TELEGRAM_BOT_TOKEN, TELEGRAM_SPECIFIC_ACCOUNT_ID
 
-BOT_TOKEN = ""  # Telegram BOT Token
+BOT_TOKEN = TELEGRAM_BOT_TOKEN  # Telegram BOT Token
+
 bot = telebot.TeleBot(BOT_TOKEN)
-SPECIFIC_ACCOUNT_ID = 0  # Telegram通知用户ID
+SPECIFIC_ACCOUNT_ID = TELEGRAM_SPECIFIC_ACCOUNT_ID  # Telegram通知用户ID
 
 user_chat_histories = {}
 
