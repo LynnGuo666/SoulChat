@@ -1,2 +1,10 @@
 openai==0.27.8
 pyTelegramBotAPI==4.14.0
+protobuf
+transformers==4.28.0
+cpm_kernels
+torch>=1.10
+gradio
+mdtex2html
+sentencepiece
+accelerate
