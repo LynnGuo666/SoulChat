@@ -1,14 +1,12 @@
 from datetime import datetime
-
 import telebot
 import os
 from models.openai_chat import gpt_35_api_stream, INTRO_MSG
 from secrets import TELEGRAM_BOT_TOKEN, TELEGRAM_SPECIFIC_ACCOUNT_ID
 
-BOT_TOKEN = TELEGRAM_BOT_TOKEN  # Telegram BOT Token
-
+BOT_TOKEN = TELEGRAM_BOT_TOKEN
 bot = telebot.TeleBot(BOT_TOKEN)
-SPECIFIC_ACCOUNT_ID = TELEGRAM_SPECIFIC_ACCOUNT_ID  # Telegram通知用户ID
+SPECIFIC_ACCOUNT_ID = TELEGRAM_SPECIFIC_ACCOUNT_ID
 
 user_chat_histories = {}
 
@@ -19,15 +17,28 @@ def send_intro(message):
     bot.send_message(message.chat.id, intro)
     bot.send_message(message.chat.id,
                      "本对话中的医学内容仅供参考，并不能视作专业意见。如需获取医疗帮助或意见，请咨询专业人士。详见医学声明.")
-    user_chat_histories[message.chat.id] = [
-        {'role': 'system', 'content': INTRO_MSG},
-        {'role': 'user', 'content': INTRO_MSG}
-    ]
-    gpt_35_api_stream(user_chat_histories[message.chat.id])  # 初始化AI的角色
+    user_chat_histories[message.chat.id] = {
+        'history': [
+            {'role': 'system', 'content': INTRO_MSG},
+            {'role': 'user', 'content': INTRO_MSG}
+        ],
+        'mode': 'ChatGPT'
+    }
+    gpt_35_api_stream(user_chat_histories[message.chat.id]['history'])
+
+
+@bot.message_handler(commands=['change'])
+def change_mode(message):
+    mode = message.text.split()[1]
+    if mode not in ['ChatGPT', 'SoulChat']:
+        bot.send_message(message.chat.id, "无效的模式。请使用 /change ChatGPT 或 /change SoulChat。")
+        return
+    user_chat_histories[message.chat.id]['mode'] = mode
+    bot.send_message(message.chat.id, f"已切换到 {mode} 模式。")
 
 
 @bot.message_handler(func=lambda msg: True)
-def chat_with_gpt(message):
+def handle_message(message):
     if message.chat.id not in user_chat_histories:
         send_intro(message)
 
@@ -35,49 +46,23 @@ def chat_with_gpt(message):
         'role': 'user',
         'content': message.text
     }
-    user_chat_histories[message.chat.id].append(user_input)
+    user_chat_histories[message.chat.id]['history'].append(user_input)
 
-    # 使用OpenAI获取ChatGPT的回复
-    success, error_msg = gpt_35_api_stream(user_chat_histories[message.chat.id])
-    if not success:
-        bot.send_message(message.chat.id, "抱歉，我遇到了一个错误。")
-        return
+    if user_chat_histories[message.chat.id]['mode'] == 'ChatGPT':
+        success, error_msg = gpt_35_api_stream(user_chat_histories[message.chat.id]['history'])
+        if not success:
+            bot.send_message(message.chat.id, "抱歉，我遇到了一个错误。")
+            return
+        gpt_response = user_chat_histories[message.chat.id]['history'][-1]['content']
 
-    gpt_response = user_chat_histories[message.chat.id][-1]['content']
-
-    if "需要介入" in gpt_response:
-        # 发送报告并通知特定账户
-        bot.send_message(message.chat.id, gpt_response)
-        bot.send_message(SPECIFIC_ACCOUNT_ID,
-                         f"【风险警告】侦测到用户{message.chat.id}需要介入处理。{user_chat_histories}")  # 添加报告内容
-        return
-    if "风险评估：高" in gpt_response:
-        # 发送报告并通知特定账户
-        bot.send_message(message.chat.id, gpt_response)
-        bot.send_message(SPECIFIC_ACCOUNT_ID,
-                         f"【风险警告】侦测到用户{message.chat.id}需要介入处理。{user_chat_histories}")  # 添加报告内容
-        return
-
-        # 将用户消息和ChatGPT的回复打印到终端
-    print(f"用户消息: {user_input['content']}")
-    print(f"ChatGPT的回复: {gpt_response}")
-
-    # 将ChatGPT的回复发送给用户
     bot.send_message(message.chat.id, gpt_response)
 
-    # 确保logs目录存在
     if not os.path.exists("logs"):
         os.mkdir("logs")
-
-    # 为每个账号创建子目录
     account_dir = os.path.join("logs", str(message.chat.id))
     if not os.path.exists(account_dir):
         os.mkdir(account_dir)
-
-    # 定义文件保存路径
     file_path = os.path.join(account_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S')}.txt")
-
-    # 保存聊天记录
     with open(file_path, "a", encoding="utf-8") as f:
         f.write(f"用户: {user_input['content']}\n")
         f.write(f"机器人: {gpt_response}\n")
