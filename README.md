@@ -1,3 +1,4 @@
+![SoulMate](https://github.com/ChenM0M/SoulMate/assets/126325292/552605b2-285d-4fd9-a754-c3cef3ab89e0)
 # 关于>SoulMate
 SoulMate是基于GPT进行信息处理、面向各种社交软件的心理咨询与预警Bot
 # ✨>SoulMate能为我做些什么呢✨
@@ -21,6 +22,6 @@ SoulMate是基于GPT进行信息处理、面向各种社交软件的心理咨询
 # 💌支持我们💌
 如果觉得我们的项目有意义请给个⭐谢谢啦
 # 🚀致谢🚀
-- [LynnGuo666](https://github.com/LynnGuo666/) 在技术上提供巨大的帮助
+- [LynnGuo666](https://github.com/LynnGuo666/) 在技术上提供巨大的帮助,帮助设计了logo
 - [yaoandy107](https://github.com/yaoandy107/line-bot-tutorial) 感谢linebot教学
 - ChatGPT ~~在技术上提供超大超大的帮助~~
