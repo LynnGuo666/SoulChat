@@ -1,6 +1,7 @@
 import os
 import discord
-import asyncio  # Add this line
+import asyncio
+import logging
 from discord.ext import commands
 from discord.ui import Button, View
 
@@ -33,28 +34,33 @@ async def start(ctx):
 
     async def button_callback(i, user=user):
         try:
+            print("收到确认指令")
             # 发送等待消息的卡片
             wait_message = await ctx.send("正在处理，请稍候...")
 
-            message = await bot.wait_for('message', check=lambda m: m.author == user and m.channel == ctx.channel, timeout=60)
+            message = await bot.wait_for('message', check=lambda m: m.author == user and m.channel == ctx.channel)
             user_input = {'role': 'user', 'content': message.content}
             user_chat_histories[user.id]['history'].append(user_input)
-            gpt_35_api_stream(user_chat_histories[user.id]['history'])
-            gpt_response = user_chat_histories[user.id]['history'][-1]['content']
 
-            # 修改等待消息卡片为ChatGPT的回复
-            await wait_message.edit(content=gpt_response)
+            try:
+                # 尝试调用 ChatGPT 函数
+                gpt_35_api_stream(user_chat_histories[user.id]['history'])
+                gpt_response = user_chat_histories[user.id]['history'][-1]['content']
 
-            # Log the conversation
-            log_message = f"User: {user_input['content']}\nBot: {gpt_response}\n"
-            logging.info(log_message)
+                # 修改等待消息卡片为ChatGPT的回复
+                await wait_message.edit(content=gpt_response)
+
+                # Log the conversation
+                log_message = f"User: {user_input['content']}\nBot: {gpt_response}\n"
+                print(log_message)  # 打印到终端
+                logging.info(log_message)
+            except Exception as gpt_error:
+                print(f'Error in ChatGPT response: {gpt_error}')
+                await ctx.send("抱歉，我遇到了一个错误。请稍后再试。")
+
         except discord.DiscordException as e:
             print(f'Discord error: {e}')
-            await ctx.send("发生了错误，请稍后再试。")
-        except asyncio.TimeoutError:
-            await ctx.send("操作超时，请重新开始.")
-
-        button.disabled = True  # 禁用按钮
+            await ctx.send("发生了错误，请稍后再试.")
 
     button.callback = button_callback
     buttons_view = View()
