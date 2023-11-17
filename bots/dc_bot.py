@@ -39,7 +39,8 @@ async def start(ctx):
             try:
                 print("收到确认指令")
                 user_chat_histories[user.id]['agreed_to_privacy'] = True  # 用户同意隐私协议
-                await ctx.send("嗨嗨！你好呀！我是你的心理医生小助手，来陪你聊天和倾听你的心声。有什么让你感到烦恼或者困扰的事情吗？来和我分享一下吧！😊")
+                await ctx.send(
+                    "嗨嗨！你好呀！我是你的心理医生小助手，来陪你聊天和倾听你的心声。有什么让你感到烦恼或者困扰的事情吗？来和我分享一下吧！😊")
                 while True:
                     try:
                         # 等待用户输入，设置超时为120秒
@@ -57,6 +58,26 @@ async def start(ctx):
                         # 发送 ChatGPT 的回复
                         gpt_35_api_stream(user_chat_histories[user.id]['history'])
                         gpt_response = user_chat_histories[user.id]['history'][-1]['content']
+
+                        # 在这里检测 ChatGPT 回复是否包含关键词
+                        if "需要介入" in gpt_response:
+                            # 发送警告消息到指定的 Server ID 和 Channel ID
+                            target_server_id = 1091276905707225138  # 请替换为实际的 Server ID
+                            target_channel_id = 1091276905707225141  # 请替换为实际的 Channel ID
+
+                            target_server = bot.get_guild(target_server_id)
+                            target_channel = target_server.get_channel(target_channel_id)
+
+                            # 构建警告消息
+                            warning_message = (
+                                f"警告：用户 {user.name} 风险高！\n"
+                                f"用户输入：{user_input['content']}\n"
+                                f"ChatGPT 回复：{gpt_response}"
+                            )
+
+                            await target_channel.send(warning_message)
+
+                        # 发送 ChatGPT 的回复给用户
                         await ctx.send(gpt_response)
 
                         # Log the conversation
@@ -80,5 +101,3 @@ async def start(ctx):
 def start_bot():
     bot.run(DC_BOT_TOKEN)
 
-if __name__ == "__main__":
-    start_bot()
