@@ -61,22 +61,37 @@ async def start(ctx):
 
                         # 在这里检测 ChatGPT 回复是否包含关键词
                         if "需要介入" in gpt_response:
-                            # 发送警告消息到指定的 Server ID 和 Channel ID
+                            # 构建警告消息
+                            warning_message = (
+                                f"警告：用户 {user.name} 在对话中出现了关键&#8203;``【oaicite:0】``&#8203;】！\n"
+                                f"整个对话历史：\n"
+                            )
+
+                            # 添加整个对话历史（去除 System 消息）
+                            for entry in user_chat_histories[user.id]['history']:
+                                role = entry['role']
+                                content = entry['content']
+                                if role != 'system':
+                                    warning_message += f"{role.capitalize()}: {content}\n"
+
+                            # 保存对话历史到文本文件
+                            filename = f"conversation_{user.id}.txt"
+                            with open(filename, 'w', encoding='utf-8') as file:
+                                file.write(warning_message)
+
+                            # 发送文件到指定的 Server ID 和 Channel ID
                             target_server_id = 1091276905707225138  # 请替换为实际的 Server ID
                             target_channel_id = 1091276905707225141  # 请替换为实际的 Channel ID
 
                             target_server = bot.get_guild(target_server_id)
                             target_channel = target_server.get_channel(target_channel_id)
 
-                            # 构建警告消息
-                            warning_message = (
-                                f"警告：用户 {user.name} 风险高！\n"
-                                f"用户输入：{user_input['content']}\n"
-                                f"ChatGPT 回复：{gpt_response}"
-                            )
+                            # 发送文件
+                            with open(filename, 'rb') as file:
+                                await target_channel.send(file=discord.File(file, filename))
 
-                            await target_channel.send(warning_message)
-
+                            # 删除保存的文件
+                            os.remove(filename)
                         # 发送 ChatGPT 的回复给用户
                         await ctx.send(gpt_response)
 
