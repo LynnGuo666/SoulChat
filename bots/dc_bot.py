@@ -1,5 +1,6 @@
 import os
 import discord
+import asyncio  # Add this line
 from discord.ext import commands
 from discord.ui import Button, View
 
@@ -43,6 +44,10 @@ async def start(ctx):
 
             # 修改等待消息卡片为ChatGPT的回复
             await wait_message.edit(content=gpt_response)
+
+            # Log the conversation
+            log_message = f"User: {user_input['content']}\nBot: {gpt_response}\n"
+            logging.info(log_message)
         except discord.DiscordException as e:
             print(f'Discord error: {e}')
             await ctx.send("发生了错误，请稍后再试。")
@@ -58,3 +63,6 @@ async def start(ctx):
 
 def start_bot():
     bot.run(DC_BOT_TOKEN)
+
+if __name__ == "__main__":
+    start_bot()
