@@ -63,7 +63,7 @@ async def start(ctx):
                         if "需要介入" in gpt_response:
                             # 构建警告消息
                             warning_message = (
-                                f"警告：用户 {user.name} 在对话中出现了关键&#8203;``【oaicite:0】``&#8203;】！\n"
+                                f"警告：用户 {user.name} 在对话中出现了关键词！\n"
                                 f"整个对话历史：\n"
                             )
 
@@ -81,7 +81,7 @@ async def start(ctx):
 
                             # 发送文件到指定的 Server ID 和 Channel ID
                             target_server_id = 1091276905707225138  # 请替换为实际的 Server ID
-                            target_channel_id = 1091276905707225141  # 请替换为实际的 Channel ID
+                            target_channel_id = 1175397546349297704  # 请替换为实际的 Channel ID
 
                             target_server = bot.get_guild(target_server_id)
                             target_channel = target_server.get_channel(target_channel_id)
