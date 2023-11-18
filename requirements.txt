@@ -1,4 +1,5 @@
+discord.py==2.3.2
+Flask==3.0.0
 openai==0.27.8
 pyTelegramBotAPI==4.14.0
-line-bot-sdk==3.5.0
-(待补充)
+
