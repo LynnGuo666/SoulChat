@@ -3,3 +3,5 @@ Flask==3.0.0
 pyTelegramBotAPI==4.14.0
 line-bot-sdk==3.5.0
 discord==2.3.2
+
+asyncio>=3.4.3
