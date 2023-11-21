@@ -3,7 +3,6 @@ import telebot
 import os
 from models.openai_chat import gpt_35_api_stream, INTRO_MSG
 from secrets import TELEGRAM_BOT_TOKEN, TELEGRAM_SPECIFIC_ACCOUNT_ID
-from models.soulchat import chat_with_soulchat
 
 BOT_TOKEN = TELEGRAM_BOT_TOKEN
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -55,8 +54,6 @@ def handle_message(message):
             bot.send_message(message.chat.id, "抱歉，我遇到了一个错误。")
             return
         gpt_response = user_chat_histories[message.chat.id]['history'][-1]['content']
-    else:  # mode is 'SoulChat'
-        gpt_response = chat_with_soulchat(message.text)
 
     bot.send_message(message.chat.id, gpt_response)
 

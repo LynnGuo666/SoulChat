@@ -1,10 +1,6 @@
 openai==0.27.8
+Flask==3.0.0
 pyTelegramBotAPI==4.14.0
-protobuf
-transformers==4.28.0
-cpm_kernels
-torch>=1.10
-gradio
-mdtex2html
-sentencepiece
-accelerate
+line-bot-sdk==3.5.0
+discord==2.3.2
+asyncio>=3.4.3
