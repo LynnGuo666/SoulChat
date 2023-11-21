@@ -44,14 +44,15 @@ async def change_mode(msg: Message):
 async def process_message(msg: Message):
     print(msg.content)
     if msg.author.id not in user_chat_histories:
-        intro = "你好呀，这里是心灵加油站，如果你想要得到我的帮助的话，请你介绍下自己吧！"
-        await msg.reply(intro)
-        await msg.reply(
-            "本对话中的医学内容仅供参考，并不能视作专业意见。如需获取医疗帮助或意见，请咨询专业人士。详见医学声明.")
+        #         intro = "你好呀，这里是心灵加油站，如果你想要得到我的帮助的话，请你介绍下自己吧！"
+        #         await msg.reply(intro)
+        #         await msg.reply(
+        #             "本对话中的医学内容仅供参考，并不能视作专业意见。如需获取医疗帮助或意见，请咨询专业人士。详见医学声明.")
         user_chat_histories[msg.author.id] = {
             'history': [
                 {'role': 'system', 'content': INTRO_MSG},
-                {'role': 'user', 'content': INTRO_MSG}
+                {'role': 'user',
+                 'content': f"我的名字是{msg.author.username}，接下来我将向你咨询一些问题，如果我的对话中存在任何非心理方面的问题，你可以拒绝回答我。"}
             ],
             'mode': 'ChatGPT'
         }

@@ -92,6 +92,7 @@ async def start(ctx):
 
                             # 删除保存的文件
                             os.remove(filename)
+
                         # 发送 ChatGPT 的回复给用户
                         await ctx.send(gpt_response)
 
