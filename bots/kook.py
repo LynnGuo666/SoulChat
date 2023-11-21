@@ -3,6 +3,7 @@ import os
 from khl import Bot, Message
 from models.openai_chat import gpt_35_api_stream, INTRO_MSG
 from secrets import KOOK_Token
+import asyncio
 
 # 初始化机器人
 bot = Bot(token=KOOK_Token)
@@ -36,6 +37,7 @@ async def change_mode(msg: Message):
     await msg.reply(f"已切换到 {mode} 模式。")
 
 
+
 # 注册消息处理器，处理所有消息
 @bot.command(regex=r'^[^/].*')
 async def process_message(msg: Message):
@@ -67,8 +69,13 @@ async def process_message(msg: Message):
             return
         gpt_response = user_chat_histories[msg.author.id]['history'][-1]['content']
 
+        # 添加检测“需要介入”的条件
+        if "需要介入" in gpt_response:
+            ch = await bot.client.fetch_public_channel("1596011429179695")
+            await bot.client.send(ch,f"用户 {msg.author.username} 需要介入，完整对话如下：\n\n{user_chat_histories[msg.author.id]['history']}")
+
     # 使用 await 调用异步函数
-    msg.reply(gpt_response)
+    await msg.reply(gpt_response)
 
     if not os.path.exists("logs"):
         os.mkdir("logs")
@@ -89,7 +96,5 @@ async def reset_conversation(msg: Message):
 
 # 启动机器人
 def start_bot():
-    bot.run()
+    asyncio.gather(bot.run())
 
-# 启动机器人
-start_bot()
