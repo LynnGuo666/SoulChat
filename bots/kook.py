@@ -11,6 +11,7 @@ bot = Bot(token=KOOK_Token)
 # 保存用户聊天记录的字典
 user_chat_histories = {}
 
+
 # 注册命令，发送 `/start` 在频道中调用
 @bot.command(name='start')
 async def send_intro(msg: Message):
@@ -26,6 +27,7 @@ async def send_intro(msg: Message):
     }
     gpt_35_api_stream(user_chat_histories[msg.author.id]['history'])
 
+
 # 注册命令，发送 `/change 模式` 在频道中调用
 @bot.command(name='change')
 async def change_mode(msg: Message):
@@ -35,7 +37,6 @@ async def change_mode(msg: Message):
         return
     user_chat_histories[msg.author.id]['mode'] = mode
     await msg.reply(f"已切换到 {mode} 模式。")
-
 
 
 # 注册消息处理器，处理所有消息
@@ -72,7 +73,10 @@ async def process_message(msg: Message):
         # 添加检测“需要介入”的条件
         if "需要介入" in gpt_response:
             ch = await bot.client.fetch_public_channel("1596011429179695")
-            await bot.client.send(ch,f"用户 {msg.author.username} 需要介入，完整对话如下：\n\n{user_chat_histories[msg.author.id]['history']}")
+            response_text = f"用户 {msg.author.username} 需要介入，完整对话如下：\n\n"
+            response_text += "\n".join(
+                [f"{item['role']}: {item['content']}" for item in user_chat_histories[msg.author.id]['history']])
+            await bot.client.send(ch, response_text)
 
     # 使用 await 调用异步函数
     await msg.reply(gpt_response)
@@ -94,7 +98,7 @@ async def reset_conversation(msg: Message):
     user_chat_histories.pop(msg.author.id, None)
     await send_intro(msg)
 
+
 # 启动机器人
 def start_bot():
     asyncio.gather(bot.run())
-
